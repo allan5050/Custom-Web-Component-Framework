@@ -16,12 +16,13 @@ export function define(component) {
             this.shadowRoot.innerHTML = '';
             this.shadowRoot.appendChild(template.content.cloneNode(true));
             this.bindEventListeners();
-            this.updateAttributes();
         }
 
         updateAttributes() {
             Object.keys(initialState).forEach(attr => {
-                this.setAttribute(attr, this[attr]);
+                if (attr !== 'connect') {  // Skip connect to avoid errors
+                    this.setAttribute(attr, this[attr]);
+                }
             });
         }
 
@@ -29,13 +30,36 @@ export function define(component) {
             const eventElements = this.shadowRoot.querySelectorAll('[onclick]');
             eventElements.forEach(element => {
                 const eventHandler = new Function('event', `
-          with (this) {
-            (${element.getAttribute('onclick')})(this);
-            this.updateComponent();
-          }
-        `).bind(this);
+                    with (this) {
+                        (${element.getAttribute('onclick')})(this);
+                        this.updateComponent();
+                    }
+                `).bind(this);
                 element.addEventListener('click', eventHandler);
             });
+        }
+
+        async connectedCallback() {
+            console.log('Connected callback started');
+            await this.updateStoreData();
+            console.log('Store data updated');
+            this.updateComponent();
+            console.log('Component updated');
+        }
+
+        async updateStoreData() {
+            console.log('Updating store data');
+            for (const key in this) {
+                console.log(`Checking key: ${key}`);
+                if (this[key] && typeof this[key] === 'object' && this[key].connect) {
+                    console.log(`Found store key: ${key}`);
+                    const storeData = await this[key].connect.get();
+                    console.log(`Store data for ${key}:`, storeData);
+                    this[key] = { ...this[key], ...storeData, status: 'ready' };
+                    console.log(`Updated store data for ${key}:`, this[key]);
+                }
+            }
+            console.log('this.user:', this.user);
         }
     }
 
@@ -48,3 +72,15 @@ export function html(strings, ...values) {
         return result + string + value;
     }, '');
 }
+
+export function store(initialState) {
+    return {
+        ...initialState,
+        status: 'pending',
+        connect: initialState.connect,
+    };
+}
+
+store.pending = data => data.status === 'pending';
+store.error = data => data.status === 'error';
+store.ready = data => data.status === 'ready';
