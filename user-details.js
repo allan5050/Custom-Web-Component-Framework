@@ -4,6 +4,7 @@ import { define, store, html } from './your-framework.js';
 const User = {
     id: '1',
     name: "",
+    username: "",  // Add this line
     connect: {
         get: () => {
             console.log('Fetching user data...');

@@ -16,12 +16,17 @@ export function define(component) {
             this.shadowRoot.innerHTML = '';
             this.shadowRoot.appendChild(template.content.cloneNode(true));
             this.bindEventListeners();
+            this.updateAttributes();
         }
 
         updateAttributes() {
             Object.keys(initialState).forEach(attr => {
-                if (attr !== 'connect') {  // Skip connect to avoid errors
-                    this.setAttribute(attr, this[attr]);
+                if (attr !== 'connect') {
+                    if (attr === 'user') {
+                        this.setAttribute(attr, this[attr].username);
+                    } else {
+                        this.setAttribute(attr, this[attr]);
+                    }
                 }
             });
         }
@@ -57,6 +62,7 @@ export function define(component) {
                     console.log(`Store data for ${key}:`, storeData);
                     this[key] = { ...this[key], ...storeData, status: 'ready' };
                     console.log(`Updated store data for ${key}:`, this[key]);
+                    this.updateAttributes();
                 }
             }
             console.log('this.user:', this.user);
