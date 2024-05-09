@@ -45,27 +45,27 @@ export function define(component) {
         }
 
         async connectedCallback() {
-            console.log('Connected callback started');
+            //console.log('Connected callback started');
             await this.updateStoreData();
-            console.log('Store data updated');
+            //console.log('Store data updated');
             this.updateComponent();
-            console.log('Component updated');
+            //console.log('Component updated');
         }
 
         async updateStoreData() {
-            console.log('Updating store data');
+            //console.log('Updating store data');
             for (const key in this) {
-                console.log(`Checking key: ${key}`);
+                //console.log(`Checking key: ${key}`);
                 if (this[key] && typeof this[key] === 'object' && this[key].connect) {
-                    console.log(`Found store key: ${key}`);
+                    //console.log(`Found store key: ${key}`);
                     const storeData = await this[key].connect.get();
-                    console.log(`Store data for ${key}:`, storeData);
+                    //console.log(`Store data for ${key}:`, storeData);
                     this[key] = { ...this[key], ...storeData, status: 'ready' };
-                    console.log(`Updated store data for ${key}:`, this[key]);
+                    //console.log(`Updated store data for ${key}:`, this[key]);
                     this.updateAttributes();
                 }
             }
-            console.log('this.user:', this.user);
+            //console.log('this.user:', this.user);
         }
     }
 

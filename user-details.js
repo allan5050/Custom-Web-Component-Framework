@@ -2,13 +2,13 @@
 import { define, store, html } from './your-framework.js';
 
 const User = {
-    id: '1',
+    id: true,
     name: "",
-    username: "",  // Add this line
+    username: "", 
     connect: {
         get: () => {
             console.log('Fetching user data...');
-            return fetch('./user.json')
+            return fetch('https://jsonplaceholder.typicode.com/users/1')
                 .then(response => {
                     console.log('Response received:', response);
                     if (!response.ok) {
